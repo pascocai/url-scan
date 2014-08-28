@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ROOT>
+	<VAR>
+		<totalUrls>2</totalUrls>
+		<maxParams>3</maxParams>
+		<firstValidRow>2</firstValidRow>
+		<urlBeginCol>1</urlBeginCol>
+		<paramBeginCol>2</paramBeginCol>
+		<valueBeginCol>5</valueBeginCol>
+		<reportPassColor>green</reportPassColor>
+		<reportFailColor>red</reportFailColor>
+		<xssKeyword>xss</xssKeyword>
+		<outputFileName>report</outputFileName>
+		<domain>https://www.google.com.hk</domain>
+		<importFileName>urlscan.xls</importFileName>
+		<isPost>0</isPost>
+		<strCookie></strCookie>
+	</VAR>
+</ROOT>
