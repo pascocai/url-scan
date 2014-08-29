@@ -12,7 +12,6 @@
 		<xssKeyword>xss</xssKeyword>
 		<outputFileName>report</outputFileName>
 		<domain>https://www.google.com.hk</domain>
-		<importFileName>urlscan.xls</importFileName>
 		<isPost>0</isPost>
 		<strCookie></strCookie>
 	</VAR>

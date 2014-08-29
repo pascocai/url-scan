@@ -19,114 +19,120 @@ public class UrlScan {
 	private static Workbook book = null;
 	private static Sheet sheet = null;
 	private static Cell cell = null;
-
-	public static void main(String[] args) {
-		
-		int logType = 0;	// 0 = html file	1 = console
-		
-		int totalUrls = 1;
-		int maxParams = 99;
-		int firstValidRow = 99;
-		int urlBeginCol = 99;
-		int paramBeginCol = 99;
-		int valueBeginCol = 99;
-		String reportPassColor = "green";
-		String reportFailColor = "red";
-		String xssKeyword = "xss";
-		String outputFileName = "report.html";
-		String domain = "https://www.google.com.hk";
-		String importFileName = "urlscan.xls";
-		String strCookie = "";
-		
-		String newLineChar[] = {"<br>", "\r\n"};
-		
+	private int totalUrls = 1;
+	private int maxParams = 99;
+	private int isPost = 0;
+	private int firstValidRow = 99;
+	private int urlBeginCol = 99;
+	private int paramBeginCol = 99;
+	private int valueBeginCol = 99;
+	private String reportPassColor = "green";
+	private String reportFailColor = "red";
+	private String xssKeyword = "xss";
+	private String outputFileName = "report.html";
+	private String domain = "https://www.google.com.hk";
+	//private String importFileName = "urlscan.xls";
+	private String strCookie = "";
+	
+	public boolean checkConfig() {
 		try {
 			File f = new File("config.xml");
 			SAXReader reader = new SAXReader();
 			Document doc = reader.read(f);
 			root = doc.getRootElement();
+			
+			String temp = root.element("VAR").element("totalUrls").getTextTrim();
+			if(!temp.equals(""))
+				totalUrls = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("maxParams").getTextTrim();
+			if(!temp.equals(""))
+				maxParams = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("firstValidRow").getTextTrim();
+			if(!temp.equals(""))
+				firstValidRow = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("urlBeginCol").getTextTrim();
+			if(!temp.equals(""))
+				urlBeginCol = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("paramBeginCol").getTextTrim();
+			if(!temp.equals(""))
+				paramBeginCol = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("valueBeginCol").getTextTrim();
+			if(!temp.equals(""))
+				valueBeginCol = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("isPost").getTextTrim();
+			if(!temp.equals(""))
+				isPost = Integer.parseInt(temp);
+			
+			temp = root.element("VAR").element("reportPassColor").getTextTrim();
+			if(!temp.equals(""))
+				reportPassColor = temp;
+			
+			temp = root.element("VAR").element("reportFailColor").getTextTrim();
+			if(!temp.equals(""))
+				reportFailColor = temp;
+			
+			temp = root.element("VAR").element("xssKeyword").getTextTrim();
+			if(!temp.equals(""))
+				xssKeyword = temp;
+			
+			temp = root.element("VAR").element("outputFileName").getTextTrim();
+			if(!temp.equals(""))
+				outputFileName = temp;
+			
+			SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");     
+			outputFileName = outputFileName+"_"+sDateFormat.format(new java.util.Date())+".html";
+			
+			temp = root.element("VAR").element("domain").getTextTrim();
+			if(!temp.equals(""))
+				domain = temp;
+			/*
+			temp = root.element("VAR").element("importFileName").getTextTrim();
+			if(!temp.equals(""))
+				importFileName = temp;
+			*/
+			temp = root.element("VAR").element("strCookie").getTextTrim();
+			if(!temp.equals(""))
+				strCookie = temp;
+			
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
-		
-		String temp = root.element("VAR").element("totalUrls").getTextTrim();
-		if(!temp.equals(""))
-			totalUrls = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("maxParams").getTextTrim();
-		if(!temp.equals(""))
-			maxParams = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("firstValidRow").getTextTrim();
-		if(!temp.equals(""))
-			firstValidRow = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("urlBeginCol").getTextTrim();
-		if(!temp.equals(""))
-			urlBeginCol = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("paramBeginCol").getTextTrim();
-		if(!temp.equals(""))
-			paramBeginCol = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("valueBeginCol").getTextTrim();
-		if(!temp.equals(""))
-			valueBeginCol = Integer.parseInt(temp);
-		
-		String urls[] = new String[totalUrls];
-		String postData[] = new String[totalUrls];
-		String paramName[] = new String[maxParams];
-		String valueName[] = new String[maxParams];
-		
-		String params[][] = new String[totalUrls][];
-		String values[][] = new String[totalUrls][];
-		int isPost = 0;
-		
-		temp = root.element("VAR").element("isPost").getTextTrim();
-		if(!temp.equals(""))
-			isPost = Integer.parseInt(temp);
-		
-		temp = root.element("VAR").element("reportPassColor").getTextTrim();
-		if(!temp.equals(""))
-			reportPassColor = temp;
-		
-		temp = root.element("VAR").element("reportFailColor").getTextTrim();
-		if(!temp.equals(""))
-			reportFailColor = temp;
-		
-		temp = root.element("VAR").element("xssKeyword").getTextTrim();
-		if(!temp.equals(""))
-			xssKeyword = temp;
-		
-		temp = root.element("VAR").element("outputFileName").getTextTrim();
-		if(!temp.equals(""))
-			outputFileName = temp;
-		
-		SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");     
-		outputFileName = outputFileName+"_"+sDateFormat.format(new java.util.Date())+".html";
-		
-		temp = root.element("VAR").element("domain").getTextTrim();
-		if(!temp.equals(""))
-			domain = temp;
-		
-		temp = root.element("VAR").element("importFileName").getTextTrim();
-		if(!temp.equals(""))
-			importFileName = temp;
-		
-		temp = root.element("VAR").element("strCookie").getTextTrim();
-		if(!temp.equals(""))
-			strCookie = temp;
-		
+	}
+
+	public boolean checkImportFile(String importFileName) {
 		try {
 			book = Workbook.getWorkbook(new File(importFileName));
 		} catch (BiffException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
 		sheet = book.getSheet(0);
+		return true;
+	}
+	public boolean runScan() {
+		int logType = 0;	// 0 = html file	1 = console
+		
+		String urls[] = new String[totalUrls];
+		String postData[] = new String[totalUrls];
+		String paramName[] = new String[maxParams];
+		String valueName[] = new String[maxParams];
+		String params[][] = new String[totalUrls][];
+		String values[][] = new String[totalUrls][];
+		
+		String newLineChar[] = {"<br>", "\r\n"};
 		
 		int valueCount = 0;
 		for (int i = 0; i < totalUrls; i++) {
@@ -193,9 +199,10 @@ public class UrlScan {
 		}
 		
 		book.close();
+		return true;
 	}
 	
-	private static String getCell(int col, int row) {
+	private String getCell(int col, int row) {
 		try {
 			cell = sheet.getCell(col-1, row-1);
 			String text = cell.getContents().toString().trim();
