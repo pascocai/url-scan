@@ -1,13 +1,14 @@
-package pasco.cai.java.web;
+package pascocai.java.web;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import pasco.cai.java.util.FileOperation;
 import pasco.cai.java.util.HTTPRequestPoster;
+
 import org.dom4j.*;
 import org.dom4j.io.*;
+
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
@@ -26,12 +27,9 @@ public class UrlScan {
 	private int urlBeginCol = 99;
 	private int paramBeginCol = 99;
 	private int valueBeginCol = 99;
-	private String reportPassColor = "green";
-	private String reportFailColor = "red";
 	private String xssKeyword = "xss";
 	private String outputFileName = "report.html";
 	private String domain = "https://www.google.com.hk";
-	//private String importFileName = "urlscan.xls";
 	private String strCookie = "";
 	
 	public boolean checkConfig() {
@@ -69,14 +67,6 @@ public class UrlScan {
 			if(!temp.equals(""))
 				isPost = Integer.parseInt(temp);
 			
-			temp = root.element("VAR").element("reportPassColor").getTextTrim();
-			if(!temp.equals(""))
-				reportPassColor = temp;
-			
-			temp = root.element("VAR").element("reportFailColor").getTextTrim();
-			if(!temp.equals(""))
-				reportFailColor = temp;
-			
 			temp = root.element("VAR").element("xssKeyword").getTextTrim();
 			if(!temp.equals(""))
 				xssKeyword = temp;
@@ -91,11 +81,7 @@ public class UrlScan {
 			temp = root.element("VAR").element("domain").getTextTrim();
 			if(!temp.equals(""))
 				domain = temp;
-			/*
-			temp = root.element("VAR").element("importFileName").getTextTrim();
-			if(!temp.equals(""))
-				importFileName = temp;
-			*/
+			
 			temp = root.element("VAR").element("strCookie").getTextTrim();
 			if(!temp.equals(""))
 				strCookie = temp;
@@ -123,7 +109,6 @@ public class UrlScan {
 		return true;
 	}
 	public boolean runScan() {
-		int logType = 0;	// 0 = html file	1 = console
 		
 		String urls[] = new String[totalUrls];
 		String postData[] = new String[totalUrls];
@@ -131,8 +116,6 @@ public class UrlScan {
 		String valueName[] = new String[maxParams];
 		String params[][] = new String[totalUrls][];
 		String values[][] = new String[totalUrls][];
-		
-		String newLineChar[] = {"<br>", "\r\n"};
 		
 		int valueCount = 0;
 		for (int i = 0; i < totalUrls; i++) {
@@ -153,8 +136,10 @@ public class UrlScan {
 			}
 		}
 		
+		HtmlReport report = new HtmlReport();
+		report.resetContent();
+		report.setContent("<html><head></head><body>");
 		for (int i = 0; i < totalUrls; i++) {
-			FileOperation fo = new FileOperation();
 			if (params[i] != null && params[i].length > 0) {
 				for (int j = 0; j < params[i].length; j++) {
 					if (j == 0){
@@ -177,26 +162,27 @@ public class UrlScan {
 			System.out.println(response);
 			if(null!=response) {
 				if (response.indexOf(xssKeyword) == -1) {
-					fo.write(logType, outputFileName, (i + 1) + " passed url: " + domain + urls[i], reportPassColor);
+					report.setErrorMessage(0, (i + 1) + " passed url: " + domain + urls[i]);
 				} else {
-					fo.write(logType, outputFileName, (i + 1) + " failed [keyword found] url: " + domain + urls[i], reportFailColor);
+					report.setErrorMessage(1, (i + 1) + " failed [keyword found] url: " + domain + urls[i]);
 				}
 	
 				if (params[i] != null && params[i].length > 0) {
 					for (int j = 0; j < params[i].length; j++) {
 						if (response.indexOf(values[i][j]) == -1) {
-							fo.write(logType, outputFileName, "  passed params: " + params[i][j] + "=" + values[i][j], reportPassColor);
+							report.setErrorMessage(0, "  passed params: " + params[i][j] + "=" + values[i][j]);
 						} else {
-							fo.write(logType, outputFileName, "  failed [keyword found] params: " + params[i][j] + "=" + values[i][j], reportFailColor);
+							report.setErrorMessage(1, "  failed [keyword found] params: " + params[i][j] + "=" + values[i][j]);
 						}
 					}
 				}
-				
-				fo.write(logType, outputFileName, newLineChar[logType]);
+				report.setContent("<br />");
 			} else{
-				fo.write(logType, outputFileName, (i + 1) + " failed [404 Not Found] url: " + domain + urls[i], reportFailColor);
+				report.setErrorMessage(1, (i + 1) + " failed [404 Not Found] url: " + domain + urls[i]);
 			}
 		}
+		report.setContent("</body></html>");
+		report.generateHtmlReport(outputFileName);
 		
 		book.close();
 		return true;

@@ -1,4 +1,4 @@
-package pasco.cai.java.web;
+package pascocai.java.web;
 
 import javax.swing.SwingUtilities;
 
@@ -8,24 +8,17 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -41,7 +34,7 @@ public class UrlScanGUI extends JFrame {
 	private int windowHeight = 480;
 	private Toolkit toolkit = getToolkit();
 	private Dimension screenSize = toolkit.getScreenSize();
-	String importFile = "";
+	static String importFile = "";
 	JTextArea textarea = new JTextArea();
 
 	public static void main(String[] args) {
@@ -85,10 +78,10 @@ public class UrlScanGUI extends JFrame {
 		fileOpen.setToolTipText("Open file");
 		fileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser fileopen = new JFileChooser();
+				JFileChooser fileopen = new JFileChooser(new File("."));
 				FileFilter filter = new FileNameExtensionFilter("xls files", "xls");
 				fileopen.addChoosableFileFilter(filter);
-				int ret = fileopen.showDialog(null, "Open file");
+				int ret = fileopen.showOpenDialog(UrlScanGUI.this);
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
 					importFile = file.getPath();
@@ -115,10 +108,10 @@ public class UrlScanGUI extends JFrame {
 		btn1.setToolTipText("import file");
 		btn1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser fileopen = new JFileChooser();
+				JFileChooser fileopen = new JFileChooser(new File("."));
 				FileFilter filter = new FileNameExtensionFilter("xls files", "xls");
 				fileopen.addChoosableFileFilter(filter);
-				int ret = fileopen.showDialog(null, "Open file");
+				int ret = fileopen.showOpenDialog(UrlScanGUI.this);
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
 					importFile = file.getPath();
